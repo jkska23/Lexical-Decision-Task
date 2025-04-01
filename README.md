@@ -38,11 +38,11 @@ Bilingual speakers will exhibit slower reaction times and/or lower accuracy when
 1. Clone the repository:
    ```bash
    git clone https://github.com/jkska23/Lexical-Decision-Task.git
-   cd your-repo
+   cd Lexical-Decision-Task
    ```
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install Flask
    ```
 3. Run the application:
    ```bash
