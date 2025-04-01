@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .participant-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .participant-section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .file-section {
+            margin: 15px 0;
+        }
+
+        .file-section h3 {
+            margin: 10px 0;
+            color: #34495e;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .data-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .no-data {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Download Experiment Data</h1>
+        
+        {% for participant_id, demo_file, exp_file in data_files %}
+        <div class="participant-section">
+            <h2>Participant ID: {{ participant_id }}</h2>
+            
+            <div class="file-section">
+                <h3>Demographics Data</h3>
+                {% if demo_file %}
+                <table class="data-table" id="demo-table-{{ participant_id }}">
+                    <thead>
+                        <tr>
+                            <th>Loading...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="no-data">No demographics data available</p>
+                {% endif %}
+            </div>
+
+            <div class="file-section">
+                <h3>Experiment Data</h3>
+                {% if exp_file %}
+                <table class="data-table" id="exp-table-{{ participant_id }}">
+                    <thead>
+                        <tr>
+                            <th>Loading...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="no-data">No experiment data available</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Function to load and display data
+        function loadData(participantId, fileType) {
+            const tableId = `${fileType}-table-${participantId}`;
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            fetch(`/get-data-file/participant_${participantId}_${fileType}.csv`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        table.innerHTML = '<tr><td>No data available</td></tr>';
+                        return;
+                    }
+
+                    // Create headers
+                    const headers = Object.keys(data[0]);
+                    const headerRow = document.createElement('tr');
+                    headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+                    table.innerHTML = '';
+                    table.appendChild(headerRow);
+
+                    // Create data rows
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        headers.forEach(header => {
+                            const td = document.createElement('td');
+                            td.textContent = row[header];
+                            tr.appendChild(td);
+                        });
+                        table.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    table.innerHTML = '<tr><td>Error loading data</td></tr>';
+                });
+        }
+
+        // Load data for each participant
+        document.addEventListener('DOMContentLoaded', function() {
+            const participantSections = document.querySelectorAll('.participant-section');
+            participantSections.forEach(section => {
+                const participantId = section.querySelector('h2').textContent.split(': ')[1];
+                const demoTable = section.querySelector('#demo-table-' + participantId);
+                const expTable = section.querySelector('#exp-table-' + participantId);
+                
+                if (demoTable) {
+                    loadData(participantId, 'demo');
+                }
+                if (expTable) {
+                    loadData(participantId, 'exp');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

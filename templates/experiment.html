@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexical Decision Task</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #stimulus {
+            font-size: 48px;
+            margin: 40px 0;
+            min-height: 72px;
+        }
+
+        #instructions {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        #progress {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .key-instructions {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .key {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #block-info {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="block-info"></div>
+        <div id="instructions">Press 'F' for real words, 'J' for non-words</div>
+        <div id="stimulus"></div>
+        <div class="key-instructions">
+            <div class="key">F - Real Word</div>
+            <div class="key">J - Non-word</div>
+        </div>
+        <div id="progress"></div>
+    </div>
+
+    <script>
+        // Parse the stimuli data from the template
+        const experimentStimuli = JSON.parse('{{ stimuli_json|safe }}');
+        const participantId = "{{ participant_id }}";
+        const condition = "{{ condition }}";
+        const blockNumber = parseInt("{{ block_number }}");
+        const blockOrder = "{{ block_order }}";
+        
+        console.log('Debug - Stimuli:', experimentStimuli); // Debug log
+        
+        let currentTrial = 0;
+        let startTime;
+        let trialData = [];
+
+        function showStimulus() {
+            if (currentTrial >= experimentStimuli.length) {
+                console.error('No more stimuli available');
+                return;
+            }
+            const stimulus = experimentStimuli[currentTrial];
+            document.getElementById('stimulus').textContent = stimulus.word;
+            document.getElementById('progress').textContent = `Trial ${currentTrial + 1} of ${experimentStimuli.length}`;
+            startTime = Date.now();
+            console.log('Showing stimulus:', stimulus.word); // Debug log
+        }
+
+        function saveTrialData(response, reactionTime) {
+            const stimulus = experimentStimuli[currentTrial];
+            const data = {
+                participant_id: participantId,
+                condition: condition,
+                block_number: blockNumber,
+                trial_number: currentTrial + 1,
+                stimulus: stimulus.word,
+                stimulus_type: stimulus.type,
+                response: response,
+                reaction_time: reactionTime,
+                accuracy: (response === 'real' && stimulus.type === 'real') || 
+                         (response === 'pseudo' && stimulus.type === 'pseudo') ? 1 : 0
+            };
+
+            // Save trial data
+            fetch('/save-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            trialData.push(data);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'j') {
+                const response = event.key.toLowerCase() === 'f' ? 'real' : 'pseudo';
+                const reactionTime = Date.now() - startTime;
+                
+                saveTrialData(response, reactionTime);
+                
+                currentTrial++;
+                if (currentTrial < experimentStimuli.length) {
+                    showStimulus();
+                } else {
+                    // Block completed
+                    document.getElementById('stimulus').textContent = 'Block completed!';
+                    document.getElementById('instructions').textContent = 'Please wait...';
+                    
+                    // Redirect to next block or thank you page
+                    setTimeout(() => {
+                        if (blockOrder === 'single_first') {
+                            if (condition === 'single' && blockNumber === 1) {
+                                // After English single, go to Chinese single
+                                window.location.href = `/experiment?condition=single&block=2`;
+                            } else if (condition === 'single' && blockNumber === 2) {
+                                // After Chinese single, go to mixed
+                                window.location.href = `/experiment?condition=mixed&block=1`;
+                            } else if (condition === 'mixed') {
+                                // After mixed, go to thank you
+                                window.location.href = '/thank-you';
+                            }
+                        } else {  // mixed_first
+                            if (condition === 'mixed' && blockNumber === 1) {
+                                // After mixed, go to English single
+                                window.location.href = `/experiment?condition=single&block=1`;
+                            } else if (condition === 'single' && blockNumber === 1) {
+                                // After English single, go to Chinese single
+                                window.location.href = `/experiment?condition=single&block=2`;
+                            } else if (condition === 'single' && blockNumber === 2) {
+                                // After Chinese single, go to thank you
+                                window.location.href = '/thank-you';
+                            }
+                        }
+                    }, 2000);
+                }
+            }
+        }
+
+        // Set up block information
+        const blockInfo = document.getElementById('block-info');
+        if (condition === 'single') {
+            blockInfo.textContent = `Block ${blockNumber}: ${blockNumber === 1 ? 'English' : 'Chinese'} Only`;
+        } else {
+            blockInfo.textContent = `Block ${blockNumber}: Mixed Language`;
+        }
+
+        // Start the experiment
+        document.addEventListener('keydown', handleKeyPress);
+        showStimulus();
+    </script>
+</body>
+</html>

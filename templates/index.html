@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Experiment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        p {
+            margin-bottom: 20px;
+        }
+
+        .start-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .start-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Code-Switching Experiment</h1>
+        <p>This experiment investigates how bilingual individuals process words in different language contexts. You will be presented with words in English and Chinese, and your task will be to decide whether each word is a real word or a made-up word.</p>
+        <p>The experiment will take approximately 15-20 minutes to complete. Please make sure you are in a quiet environment and can focus on the task without interruptions.</p>
+        <p>Before starting, you will be asked to complete a brief demographics questionnaire.</p>
+        <a href="{{ url_for('demographics') }}" class="start-button">Start Experiment</a>
+    </div>
+</body>
+</html>
