@@ -56,3 +56,5 @@ A sample dataset demonstrating reaction times and accuracy is included in the `d
 ## Contact
 For questions or feedback, please reach out via email or GitHub Issues.
 
+note:
+- this repo is a vibe coding mess. use it at your own discretion. 
