@@ -1,6 +1,1 @@
 participant_id,name,age,gender,education,english_proficiency,chinese_proficiency,bilingual_history,timestamp,data_type,block_order
-47ff515c,justin,21,male,bachelors,1,1,asdf,20250405_170030,demographics,single_first
-376c95f2,alexis,21,female,phd,5,5,asdfasdf,20250405_170104,demographics,mixed_first
-6b42b686,test1,20,male,high_school,1,1,asdf,20250405_170747,demographics,single_first
-b359ff1b,test2,30,female,phd,5,5,mmmmmmmmm,20250405_170820,demographics,mixed_first
-3cdd0aba,aaa,18,male,masters,1,1,asdf,20250405_171336,demographics,single_first
