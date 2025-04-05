@@ -160,21 +160,25 @@ def experiment():
                           block_order=session.get('block_order', 'single_first'))
 
 def save_to_csv(data, participant_id):
-    """Save data to a CSV file for the participant"""
+    """Save data to a CSV file"""
     if not os.path.exists('data'):
         os.makedirs('data')
     
     # Determine file type based on data_type
     data_type = data.get('data_type', '')
     if data_type == 'demographics':
-        filename = f"data/participant_{participant_id}_demographics.csv"
+        filename = "data/all_demographics.csv"
+        # Define the order of columns for demographics data
+        fieldnames = ['participant_id', 'name'] + [k for k in data.keys() if k not in ['participant_id', 'name']]
     else:
-        filename = f"data/participant_{participant_id}_experiment.csv"
+        filename = "data/all_experiment_data.csv"
+        # Define the order of columns for experiment data
+        fieldnames = ['participant_id', 'participant_name'] + [k for k in data.keys() if k not in ['participant_id', 'participant_name']]
     
     file_exists = os.path.exists(filename)
     
     with open(filename, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=data.keys())
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
         writer.writerow(data)
@@ -187,6 +191,9 @@ def save_data():
     # Add timestamp and data type to the data
     data['timestamp'] = datetime.now().strftime("%Y%m%d_%H%M%S")
     data['data_type'] = 'experiment'
+    
+    # Add participant name from session
+    data['participant_name'] = session.get('participant_name', '')
     
     # Add additional experiment-specific fields
     data['reaction_time'] = data.get('reaction_time', '')
@@ -211,26 +218,16 @@ def download_data():
     # For a real experiment, you'd want to secure this with a password
     # This is just for demonstration/testing purposes
     data_files = []
-    if os.path.exists('data'):
-        # Get unique participant IDs from filenames
-        participant_files = {}
-        for f in os.listdir('data'):
-            if f.endswith('.csv'):
-                # Extract participant ID from filename (e.g., "participant_abc123_demographics.csv")
-                parts = f.split('_')
-                if len(parts) >= 3:
-                    participant_id = parts[1]
-                    if participant_id not in participant_files:
-                        participant_files[participant_id] = {'demographics': None, 'experiment': None}
-                    
-                    if 'demographics' in f:
-                        participant_files[participant_id]['demographics'] = f
-                    elif 'experiment' in f:
-                        participant_files[participant_id]['experiment'] = f
-        
-        # Convert to list of tuples (participant_id, demographics_file, experiment_file)
-        data_files = [(pid, files['demographics'], files['experiment']) 
-                      for pid, files in participant_files.items()]
+    
+    # Check if the data files exist
+    experiment_file = 'data/all_experiment_data.csv'
+    demographics_file = 'data/all_demographics.csv'
+    
+    if os.path.exists(experiment_file) or os.path.exists(demographics_file):
+        data_files = [
+            ('all_experiment_data.csv', 'Experiment Data'),
+            ('all_demographics.csv', 'Demographics Data')
+        ]
     
     return render_template('download_data.html', data_files=data_files)
 

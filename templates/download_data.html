@@ -29,25 +29,16 @@
             margin-bottom: 30px;
         }
 
-        .participant-section {
+        .file-section {
             margin-bottom: 30px;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
 
-        .participant-section h2 {
+        .file-section h2 {
             margin-top: 0;
             color: #2c3e50;
-        }
-
-        .file-section {
-            margin: 15px 0;
-        }
-
-        .file-section h3 {
-            margin: 10px 0;
-            color: #34495e;
         }
 
         .data-table {
@@ -86,61 +77,33 @@
     <div class="container">
         <h1>Download Experiment Data</h1>
         
-        {% for participant_id, demo_file, exp_file in data_files %}
-        <div class="participant-section">
-            <h2>Participant ID: {{ participant_id }}</h2>
-            
-            <div class="file-section">
-                <h3>Demographics Data</h3>
-                {% if demo_file %}
-                <table class="data-table" id="demo-table-{{ participant_id }}">
-                    <thead>
-                        <tr>
-                            <th>Loading...</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Loading data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="no-data">No demographics data available</p>
-                {% endif %}
-            </div>
-
-            <div class="file-section">
-                <h3>Experiment Data</h3>
-                {% if exp_file %}
-                <table class="data-table" id="exp-table-{{ participant_id }}">
-                    <thead>
-                        <tr>
-                            <th>Loading...</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Loading data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="no-data">No experiment data available</p>
-                {% endif %}
-            </div>
+        {% for filename, title in data_files %}
+        <div class="file-section">
+            <h2>{{ title }}</h2>
+            <table class="data-table" id="table-{{ filename }}">
+                <thead>
+                    <tr>
+                        <th>Loading...</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         {% endfor %}
     </div>
 
     <script>
         // Function to load and display data
-        function loadData(participantId, fileType) {
-            const tableId = `${fileType}-table-${participantId}`;
+        function loadData(filename) {
+            const tableId = `table-${filename}`;
             const table = document.getElementById(tableId);
             if (!table) return;
 
-            fetch(`/get-data-file/participant_${participantId}_${fileType}.csv`)
+            fetch(`/get-data-file/${filename}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.length === 0) {
@@ -176,20 +139,12 @@
                 });
         }
 
-        // Load data for each participant
+        // Load data for each file
         document.addEventListener('DOMContentLoaded', function() {
-            const participantSections = document.querySelectorAll('.participant-section');
-            participantSections.forEach(section => {
-                const participantId = section.querySelector('h2').textContent.split(': ')[1];
-                const demoTable = section.querySelector('#demo-table-' + participantId);
-                const expTable = section.querySelector('#exp-table-' + participantId);
-                
-                if (demoTable) {
-                    loadData(participantId, 'demo');
-                }
-                if (expTable) {
-                    loadData(participantId, 'exp');
-                }
+            const tables = document.querySelectorAll('.data-table');
+            tables.forEach(table => {
+                const filename = table.id.replace('table-', '');
+                loadData(filename);
             });
         });
     </script>

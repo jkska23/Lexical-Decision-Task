@@ -88,7 +88,7 @@
             <p>The experiment will consist of multiple blocks. You will be notified when each block begins and ends.</p>
         </div>
 
-        <a href="{{ url_for('experiment', condition='single', block=1) }}" class="start-button">Start Experiment</a>
+        <a href="{{ url_for('experiment', condition=session.get('block_order', 'single_first') == 'single_first' and 'single' or 'mixed', block=1) }}" class="start-button">Start Experiment</a>
     </div>
 </body>
 </html>
