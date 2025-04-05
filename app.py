@@ -18,11 +18,9 @@ english_words = [
     {"word": "chair", "type": "real"}, 
     {"word": "happy", "type": "real"},
     {"word": "running", "type": "real"},
-    {"word": "book", "type": "real"},
     {"word": "window", "type": "real"},
     {"word": "orange", "type": "real"},
-    {"word": "house", "type": "real"},
-    {"word": "flower", "type": "real"}
+    {"word": "house", "type": "real"}
 ]
 
 chinese_words = [
@@ -31,37 +29,31 @@ chinese_words = [
     {"word": "椅子", "type": "real", "meaning": "chair"},
     {"word": "快乐", "type": "real", "meaning": "happy"},
     {"word": "跑步", "type": "real", "meaning": "running"},
-    {"word": "书", "type": "real", "meaning": "book"},
     {"word": "窗户", "type": "real", "meaning": "window"},
     {"word": "橙子", "type": "real", "meaning": "orange"},
-    {"word": "房子", "type": "real", "meaning": "house"},
-    {"word": "花", "type": "real", "meaning": "flower"}
+    {"word": "房子", "type": "real", "meaning": "house"}
 ]
 
 english_pseudo = [
-    {"word": "abble", "type": "pseudo"},
-    {"word": "tablen", "type": "pseudo"},
-    {"word": "chaur", "type": "pseudo"},
-    {"word": "happit", "type": "pseudo"},
-    {"word": "runing", "type": "pseudo"},
-    {"word": "booc", "type": "pseudo"},
-    {"word": "windon", "type": "pseudo"},
-    {"word": "orenge", "type": "pseudo"},
-    {"word": "hause", "type": "pseudo"},
-    {"word": "flowel", "type": "pseudo"}
+    {"word": "aplo", "type": "pseudo"},
+    {"word": "tabber", "type": "pseudo"},
+    {"word": "charn", "type": "pseudo"},
+    {"word": "happer", "type": "pseudo"},
+    {"word": "rumming", "type": "pseudo"},
+    {"word": "windor", "type": "pseudo"},
+    {"word": "orridge", "type": "pseudo"},
+    {"word": "houssle", "type": "pseudo"}
 ]
 
 chinese_pseudo = [
-    {"word": "苹桌", "type": "pseudo"},
-    {"word": "子子", "type": "pseudo"},
-    {"word": "椅书", "type": "pseudo"},
-    {"word": "快窗", "type": "pseudo"},
-    {"word": "跑花", "type": "pseudo"},
-    {"word": "书房", "type": "pseudo"},
-    {"word": "窗橙", "type": "pseudo"},
-    {"word": "橙苹", "type": "pseudo"},
-    {"word": "房椅", "type": "pseudo"},
-    {"word": "花书", "type": "pseudo"}
+    {"word": "苹拐", "type": "pseudo"},   # píng guǎi
+    {"word": "捉此", "type": "pseudo"},   # zhuō cǐ
+    {"word": "以之", "type": "pseudo"},   # yǐ zhī
+    {"word": "快雷", "type": "pseudo"},   # kuài léi
+    {"word": "泡布", "type": "pseudo"},   # pào bù
+    {"word": "创护", "type": "pseudo"},   # chuàng hù
+    {"word": "呈子", "type": "pseudo"},   # chéng zi
+    {"word": "纺子", "type": "pseudo"}    # fǎng zi
 ]
 
 # Routes
