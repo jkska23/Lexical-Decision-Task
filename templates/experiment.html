@@ -101,7 +101,7 @@
             document.getElementById('stimulus').textContent = stimulus.word;
             document.getElementById('progress').textContent = `Trial ${currentTrial + 1} of ${experimentStimuli.length}`;
             startTime = Date.now();
-            console.log('Showing stimulus:', stimulus.word); // Debug log
+            console.log('Showing stimulus:', stimulus.word, 'Language:', stimulus.language, 'Type:', stimulus.type); // Debug log
         }
 
         function saveTrialData(response, reactionTime) {
@@ -109,23 +109,29 @@
             const data = {
                 participant_id: participantId,
                 condition: condition,
-                block_number: blockNumber,
-                trial_number: currentTrial + 1,
                 stimulus: stimulus.word,
                 stimulus_type: stimulus.type,
-                response: response,
+                language: stimulus.language,
                 reaction_time: reactionTime,
                 accuracy: (response === 'real' && stimulus.type === 'real') || 
                          (response === 'pseudo' && stimulus.type === 'pseudo') ? 1 : 0
             };
 
-            // Save trial data
+            console.log('Saving data:', data); // Debug log
+
+            // Save trial data with proper encoding
             fetch('/save-data', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json; charset=utf-8',
                 },
                 body: JSON.stringify(data)
+            }).then(response => {
+                if (!response.ok) {
+                    console.error('Error saving data:', response.statusText);
+                }
+            }).catch(error => {
+                console.error('Error saving data:', error);
             });
 
             trialData.push(data);

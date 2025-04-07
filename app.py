@@ -120,36 +120,74 @@ def experiment():
     stimuli = []
     
     if condition == 'single':
-        # Single language block (English only)
+        # Single language block
         if block_number == 1:
-            # Ensure equal number of real and pseudo words
-            stimuli = english_words[:5] + english_pseudo[:5]  # 5 real + 5 pseudo
-        # Single language block (Chinese only)
+            # English block - 8 real + 8 pseudo
+            for word in english_words:
+                word['language'] = 'english'
+            for word in english_pseudo:
+                word['language'] = 'english'
+            stimuli = english_words + english_pseudo
         else:
-            stimuli = chinese_words[:5] + chinese_pseudo[:5]  # 5 real + 5 pseudo
+            # Chinese block - 8 real + 8 pseudo
+            for word in chinese_words:
+                word['language'] = 'chinese'
+            for word in chinese_pseudo:
+                word['language'] = 'chinese'
+            stimuli = chinese_words + chinese_pseudo
     else:
         # Mixed language block
-        # Ensure equal number of real and pseudo words for each language
-        stimuli = (english_words[:5] + chinese_words[:5] +  # 5 real English + 5 real Chinese
-                  english_pseudo[:5] + chinese_pseudo[:5])  # 5 pseudo English + 5 pseudo Chinese
+        # 8 real English + 8 real Chinese + 8 pseudo English + 8 pseudo Chinese
+        for word in english_words:
+            word['language'] = 'english'
+        for word in english_pseudo:
+            word['language'] = 'english'
+        for word in chinese_words:
+            word['language'] = 'chinese'
+        for word in chinese_pseudo:
+            word['language'] = 'chinese'
+        stimuli = (english_words + chinese_words + 
+                  english_pseudo + chinese_pseudo)
     
     # Randomize stimuli
     random.shuffle(stimuli)
     
-    # Add trial numbers and block information
-    for i, stimulus in enumerate(stimuli):
-        stimulus['trial_number'] = i + 1
-        stimulus['block_number'] = block_number
+    # Add condition information
+    for stimulus in stimuli:
         stimulus['condition'] = condition
     
-    print(f"Debug - Stimuli for {condition} block {block_number}: {json.dumps(stimuli)}")  # Debug print
+    print(f"Debug - Stimuli for {condition} block {block_number}: {json.dumps(stimuli, ensure_ascii=False)}")  # Debug print
     
     return render_template('experiment.html', 
-                          stimuli_json=json.dumps(stimuli),  # Pass as JSON string
+                          stimuli_json=json.dumps(stimuli, ensure_ascii=False),  # Pass as JSON string with proper encoding
                           participant_id=participant_id,
                           condition=condition,
                           block_number=block_number,
                           block_order=session.get('block_order', 'single_first'))
+
+@app.route('/save-data', methods=['POST'])
+def save_data():
+    data = request.get_json()
+    participant_id = data.get('participant_id', 'anonymous')
+    
+    # Create a new dictionary with all the data we want to save
+    save_data = {
+        'participant_id': participant_id,
+        'participant_name': session.get('participant_name', ''),
+        'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
+        'data_type': 'experiment',
+        'condition': data.get('condition', ''),
+        'stimulus': data.get('stimulus', ''),
+        'stimulus_type': data.get('stimulus_type', ''),
+        'language': data.get('language', ''),
+        'reaction_time': data.get('reaction_time', ''),
+        'accuracy': data.get('accuracy', '')
+    }
+    
+    # Save to CSV
+    save_to_csv(save_data, participant_id)
+    
+    return jsonify({"status": "success", "message": "Data saved successfully"})
 
 def save_to_csv(data, participant_id):
     """Save data to a CSV file"""
@@ -165,41 +203,20 @@ def save_to_csv(data, participant_id):
     else:
         filename = "data/all_experiment_data.csv"
         # Define the order of columns for experiment data
-        fieldnames = ['participant_id', 'participant_name'] + [k for k in data.keys() if k not in ['participant_id', 'participant_name']]
+        fieldnames = [
+            'participant_id', 'participant_name', 'timestamp', 'data_type',
+            'condition', 'stimulus', 'stimulus_type', 'language',
+            'reaction_time', 'accuracy'
+        ]
     
     file_exists = os.path.exists(filename)
     
-    with open(filename, 'a', newline='') as f:
+    # Use UTF-8 encoding with BOM for Excel compatibility
+    with open(filename, 'a', newline='', encoding='utf-8-sig') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
         writer.writerow(data)
-
-@app.route('/save-data', methods=['POST'])
-def save_data():
-    data = request.get_json()
-    participant_id = data.get('participant_id', 'anonymous')
-    
-    # Add timestamp and data type to the data
-    data['timestamp'] = datetime.now().strftime("%Y%m%d_%H%M%S")
-    data['data_type'] = 'experiment'
-    
-    # Add participant name from session
-    data['participant_name'] = session.get('participant_name', '')
-    
-    # Add additional experiment-specific fields
-    data['reaction_time'] = data.get('reaction_time', '')
-    data['accuracy'] = data.get('accuracy', '')
-    data['stimulus'] = data.get('stimulus', '')
-    data['response'] = data.get('response', '')
-    data['trial_number'] = data.get('trial_number', '')
-    data['block_number'] = data.get('block_number', '')
-    data['condition'] = data.get('condition', '')
-    
-    # Save to CSV
-    save_to_csv(data, participant_id)
-    
-    return jsonify({"status": "success", "message": "Data saved successfully"})
 
 @app.route('/thank-you')
 def thank_you():
